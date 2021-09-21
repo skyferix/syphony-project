@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use App\Repository\PostRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass=PostController::class)
@@ -18,6 +19,7 @@ class Post
     private $id;
 
     /**
+     * @Assert\NotBlack
      * @ORM\Column(type="string", length=255)
      */
     private $title;

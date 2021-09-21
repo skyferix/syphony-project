@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Post;
+use App\Form\PostType;
 use App\Repository\PostRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -13,7 +14,7 @@ use Symfony\Component\Routing\Annotation\Route;
 class PostController extends AbstractController
 {
     /**
-     * @Route("/", name="post")
+     * @Route("/", name="index")
      * @param PostRepository $postRepository
      * @return Response
      */
@@ -29,14 +30,21 @@ class PostController extends AbstractController
     public function create(Request $request): Response
     {
         $post = new Post();
-        $post->setTitle('Variable');
+        $form = $this->createForm(PostType::class, $post);
 
-        $em = $this->getDoctrine()->getManager();
+        $form->handleRequest($request);
 
-        $em->persist($post);
-        $em->flush();
+        if ($form->isSubmitted() && $form->isValid()) {
+            $em = $this->getDoctrine()->getManager();
+            $em->persist($post);
+            $em->flush();
+            return $this->redirect($this->generateUrl('post_index'));
+        }
+//
 
-        return new Response('Post was created');
+        return $this->render('post/create.html.twig', [
+            'form' => $form->createView()
+        ]);
     }
 
     #[Route('/show/{id}', name: 'show')]
@@ -63,6 +71,6 @@ class PostController extends AbstractController
 
         $this->addFlash('success', 'Post was removed');
 
-        return $this->redirect($this->generateUrl('post_post'));
+        return $this->redirect($this->generateUrl('post_index'));
     }
 }
